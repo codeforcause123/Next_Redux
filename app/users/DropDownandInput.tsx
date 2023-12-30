@@ -57,14 +57,21 @@ const DropDownandInput = () => {
   const [disableAgeField, setDisableAgeField] = useState(true);
 
   const handleSelectChange = (value: string): void => {
-    setRequest((prevData: Request) => ({
-      ...prevData,
-      method: value,
-      // Reset name and age when "GETALL" is selected
-      name: value === "GETALL" ? "" : prevData.name,
-      age: value === "GETALL" ? "" : prevData.age,
-    }));
-
+    setRequest((prevData: Request) => {
+      // Update the 'method' in the request object based on the selected value
+      const updatedRequest: Request = {
+        ...prevData,
+        method: value,
+        // Reset name and age when "GETALL" is selected
+        name: value === "GETALL" ? "" : prevData.name,
+        age: value === "GETALL" ? 0 : parseInt(prevData.age.toString(), 10) || 0,
+      };
+  
+      // Return the updated state
+      return updatedRequest;
+    });
+  
+    // Disable name and age fields when "GETALL" is selected, enable otherwise
     if (value === "GETALL") {
       setDisableNameField(true);
       setDisableAgeField(true);
@@ -73,7 +80,15 @@ const DropDownandInput = () => {
       setDisableNameField(false);
     }
   };
-
+  
+  
+  // Helper function to safely parse integers
+  const tryParseInt = (value: string): number | undefined => {
+    const parsedValue = parseInt(value, 10);
+    return isNaN(parsedValue) ? undefined : parsedValue;
+  };
+  
+  
   const handleDelete = async (id: number) => {
     dispatch(loadingToggle());
     try {
